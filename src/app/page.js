@@ -1,95 +1,62 @@
+'use client';
 import Image from "next/image";
-import styles from "./page.module.css";
+import estilos from "./page.module.css";
+import Banner from '@/../public/banner.png';
+import { useState } from "react";
+import { filtrarProdutos, buscaProduto, produtosEntradas } from "./service/service";
+import Cards from './components/Card/index';
+import Categorias from "./components/Categorias/index";
+import CampoDeBusca from "./components/CampoDeBusca";
+import { produtos } from "./Dados/dados";
+import Rodape from './components/Rodape';
+
 
 export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.js</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
+  const [dadosFiltrados, setDadosFiltrados] = useState(produtosEntradas);
+  const [textoBuscaDigitado, setTextoBuscaDigitado] = useState("");
+  const [botaoClicado, setBotaoClicado] = useState('Entradas');
+
+  const handleBusca = (textoDigitado) => {
+    setTextoBuscaDigitado(textoDigitado);
+    textoDigitado.length >= 3 && setDadosFiltrados(buscaProduto(textoDigitado));
+    setBotaoClicado("");
+  };
+
+  const handleFiltro = (categoria) => {
+    setTextoBuscaDigitado("");
+    setDadosFiltrados(filtrarProdutos(categoria));
+    setBotaoClicado(categoria);
+  }
+
+  return (
+    <div>
+      <header className={estilos.topo}>
+        <Image src={Banner} alt="banner" className={estilos.img}/>
+        <div>
+          <h1>RESTAURANT</h1>
+          <p>De pratos clássicos a criações surpreendentes nosso cardapio é um requinte de sabores refinados.</p>
         </div>
+      </header>
+      <main className={estilos.container_principal}>
+        <Categorias
+          handleFiltro={handleFiltro}
+          botaoClicado={botaoClicado}
+        />
+        <CampoDeBusca
+          textoBuscaDigitado={textoBuscaDigitado}
+          handleBusca={handleBusca}
+        />
+        <section className={estilos.secao_cards}>
+          <h2>Cardápio</h2>
+          <div className={estilos.container_cards}>
+            {dadosFiltrados.map((produto) => (
+              <Cards key={produto.id} produto={produto}/>
+            ))}
+          </div>
+        </section>
       </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      <Rodape/>
     </div>
   );
 }
